@@ -1,0 +1,251 @@
+{% extends "header.html" %}
+{% block body %}
+    <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+    <script src="https://www.amcharts.com/lib/3/pie.js"></script>
+    <script src="https://www.amcharts.com/lib/3/serial.js"></script>
+    <script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+    <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all"/>
+
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    {{message}}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class='container'>
+        <script>
+            var chart = AmCharts.makeChart("pieChart", {
+                "type": "pie",
+                "theme": "light",
+                "dataProvider": [
+                    {% for item in piedata %}
+                        {
+                            "service": "{{item[0]}}",
+                            "quantity": {{item[1]}}
+                        },
+                    {% endfor %}
+                ],
+                "valueField": "quantity",
+                "titleField": "service",
+                "labelRadius": 10,
+                "balloon": {
+                    "fixedPosition": true
+                },
+                "export": {
+                    "enabled": true
+                }
+            });
+
+            var chart2 = AmCharts.makeChart("salonBar", {
+                "type": "serial",
+                "theme": "light",
+                "dataProvider": [
+                    {% for item in bardata %}
+                        {
+                            "salon": "{{item[0]}}",
+                            "revenue": {{item[1]}}
+                        },
+                    {% endfor %}
+                ],
+                "valueAxes": [
+                    {
+                        "gridColor": "#FFFFFF",
+                        "gridAlpha": 0.2,
+                        "dashLength": 0
+                    }
+                ],
+                "gridAboveGraphs": true,
+                "startDuration": 1,
+                "graphs": [
+                    {
+                        "balloonText": "[[category]]: <b>[[value]]</b>",
+                        "fillAlphas": 0.8,
+                        "lineAlpha": 0.2,
+                        "type": "column",
+                        "valueField": "revenue"
+                    }
+                ],
+                "chartCursor": {
+                    "categoryBalloonEnabled": false,
+                    "cursorAlpha": 0,
+                    "zoomable": false
+                },
+                "categoryField": "salon",
+                "categoryAxis": {
+                    "gridPosition": "start",
+                    "gridAlpha": 0,
+                    "tickPosition": "start",
+                    "tickLength": 1
+                },
+                "export": {
+                    "enabled": true
+                }
+
+            });
+        </script>
+        <script>
+            var chart = AmCharts.makeChart("salonChart", {
+                "type": "serial",
+                "theme": "light",
+                "marginRight": 40,
+                "marginLeft": 40,
+                "autoMarginOffset": 20,
+                "mouseWheelZoomEnabled": true,
+                "dataDateFormat": "YYYY-MM-DD",
+                "valueAxes": [
+                    {
+                        "id": "v1",
+                        "axisAlpha": 0,
+                        "position": "left",
+                        "ignoreAxisWidth": true
+                    }
+                ],
+                "balloon": {
+                    "borderThickness": 1,
+                    "shadowAlpha": 0
+                },
+                "graphs": [
+                    {
+                        "id": "g1",
+                        "balloon": {
+                            "drop": true,
+                            "adjustBorderColor": false,
+                            "color": "#ffffff"
+                        },
+                        "bullet": "round",
+                        "bulletBorderAlpha": 1,
+                        "bulletColor": "#FFFFFF",
+                        "bulletSize": 5,
+                        "hideBulletsCount": 50,
+                        "lineThickness": 2,
+                        "title": "red line",
+                        "useLineColorForBulletBorder": true,
+                        "valueField": "value",
+                        "balloonText": "<span style='font-size:18px;'>[[value]]</span>"
+                    }
+                ],
+                "chartScrollbar": {
+                    "graph": "g1",
+                    "oppositeAxis": false,
+                    "offset": 30,
+                    "scrollbarHeight": 80,
+                    "backgroundAlpha": 0,
+                    "selectedBackgroundAlpha": 0.1,
+                    "selectedBackgroundColor": "#888888",
+                    "graphFillAlpha": 0,
+                    "graphLineAlpha": 0.5,
+                    "selectedGraphFillAlpha": 0,
+                    "selectedGraphLineAlpha": 1,
+                    "autoGridCount": true,
+                    "color": "#AAAAAA"
+                },
+                "chartCursor": {
+                    "pan": true,
+                    "valueLineEnabled": true,
+                    "valueLineBalloonEnabled": true,
+                    "cursorAlpha": 1,
+                    "cursorColor": "#258cbb",
+                    "limitToGraph": "g1",
+                    "valueLineAlpha": 0.2,
+                    "valueZoomable": true
+                },
+                "valueScrollbar": {
+                    "oppositeAxis": false,
+                    "offset": 50,
+                    "scrollbarHeight": 10
+                },
+                "categoryField": "date",
+                "categoryAxis": {
+                    "parseDates": true,
+                    "dashLength": 1,
+                    "minorGridEnabled": true
+                },
+                "export": {
+                    "enabled": true
+                },
+                "dataProvider": [
+                    {% for item in linedata %}
+                        {
+                            "date": "{{item[1]}}",
+                            "value": {{item[0]}}
+                        },
+                    {% endfor %}
+                ]
+            });
+
+            chart.addListener("rendered", zoomChart);
+
+            zoomChart();
+
+            function zoomChart() {
+                chart.zoomToIndexes(chart.dataProvider.length - 40, chart.dataProvider.length - 1);
+            }
+        </script>
+
+        <!-- HTML -->
+        <div class="panel panel-default" align="left" style="float:left; margin-right:4px">
+            <div class="panel-heading">
+                <h3 class="panel-title">Service Pie Chart</h3>
+            </div>
+            <div class="panel-body">
+                <div id="pieChart" style="width: 500px; height: 300px;"></div>
+            </div>
+        </div>
+
+        <div class="panel panel-default" align="left" style="float:left; margin-right:4px">
+            <div class="panel-heading">
+                <h3 class="panel-title">Salon Comparison</h3>
+            </div>
+            <div class="panel-body">
+                <div id="salonBar" style="width: 300px; height: 300px; font-size: 11px;"></div>
+            </div>
+        </div>
+
+        <div class="panel panel-default" style="float:left; width: 250px; height: 369px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">Calculations</h3>
+            </div>
+            <div class="panel-body">
+                <form class="form" method="post" action="/dashboard/">
+                    <select class="form-control" name="employee_choice">
+                        {% for item in employee %}
+                            <option value="{{item.name}}">{{item.name}}</option>
+                        {% endfor %}
+                    </select>
+                    <br/>
+                    <select class="form-control" name="duration_choice">
+                        <option value="30">Last 30 days</option>
+                        <option value="60">Last 60 days</option>
+                        <option value="90">Last 90 days</option>
+                    </select>
+                    <br/>
+                    <button type="submit" class="btn btn-primary" name="submit" value="calc_revenue">
+                        Calculate Revenue
+                    </button>
+                    <br/>
+                    <br/>
+                    <h3><b>{{output}}</b></h3>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel panel-default" align="left" style="float:left">
+            <div class="panel-heading">
+                <h3 class="panel-title">Daily Revenue Graph</h3>
+            </div>
+            <div class="panel-body">
+                <div id="salonChart" style="width: 1090px; height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

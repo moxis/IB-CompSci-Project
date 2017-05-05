@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>
+            {{title}}
+        </title>
+
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+
+    </head>
+    <header>
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">
+                        <b>ENNI NAILS</b>
+                    </a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        {% if g.user.is_admin %}
+                            <li class='{% if title == "Dashboard" %} active {% endif %}'>
+                                <a href="/dashboard/">Overview</a>
+                            </li>
+                        {% endif %}
+                        <li class='{% if title == "Data" %} active {% endif %}'>
+                            <a href="/data/">Data</a>
+                        </li>
+                        {% if g.user.is_admin %}
+                        <li class='{% if title == "Settings" %} active {% endif %}'>
+                            <a href="/settings/">Settings</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href='{{ url_for("logout") }}'>Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <body>
+        <div class="border-row" style="width:100%; margin-bottom: 15px;"></div>
+        <div class="container-fluid" align="center" style="min-height:100%">
+            {% block body %}{% endblock %}
+        </div>
+
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    </body>
+
+</html>

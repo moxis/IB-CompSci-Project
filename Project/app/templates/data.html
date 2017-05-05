@@ -1,0 +1,606 @@
+{% extends "header.html" %}
+{% block body %}
+
+    <body>
+        <!-- FLASH MESSAGES -->
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        {{message}}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <!-- END -->
+
+        <div class="container">
+            <ul class="nav nav-tabs">
+                {% for table in tables %}
+                    <li class=" {% if tables.index(table) == active_id %}active{% endif %}">
+                        <a data-toggle="tab" aria-controls="{{table[0].__title__}}" href="#{{table[0].__title__}}">{{table[0].__title__}}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="tab-content">
+                {% for table in tables %}
+                    <div id="{{table[0].__title__}}" class="tab-pane fade {% if tables.index(table) == active_id %}active in{% endif %}">
+                        <br \>
+                            <div class="panel panel-default" align="left" style="float:left; margin-right:1%">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Search</h3>
+                                </div>
+
+                                <div class="panel-body">
+                                    <form class="form-inline" align="center" method="post">
+                                        {{ forms['Delete'].csrf_token }}
+                                        <input type="text" class="form-control" placeholder="Query" name="query">
+                                        <select class="form-control" name="choice">
+                                            {% for item in table[0].__choice__ %}
+                                                <option value="{{item}}">{{item}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="btn btn-primary" name="submit" value="{{table[0].__title__}}_filter">
+                                            Filter
+                                        </button>
+                                        <button class="btn btn-default" name="submit" value="{{table[0].__title__}}_reset">
+                                            Reset
+                                        </button>
+                                        <button class="btn btn-info" name="submit" value="{{table[0].__title__}}_export">
+                                            Export
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="panel panel-default" align="left" style="float:left; margin-left:1%">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Control Panel</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <form class="form-inline">
+                                        <button type="button" class="btn btn-success" id="new_entry" data-toggle="modal" data-target="#{{table[0].__title__}}_new">
+                                            New Entry
+                                        </button>
+                                        <button type="button" class="btn btn-warning" id="update_entry" data-toggle="modal" data-target="#{{table[0].__title__}}_edit">
+                                            Update Entry
+                                        </button>
+                                        <button type="button" class="btn btn-danger" id="delete_entry" data-toggle="modal" data-target="#{{table[0].__title__}}_del">
+                                            Delete Entry
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </br>
+                        {{table[1]}}
+                    </div>
+                    <div class="modal fade" id="{{table[0].__title__}}_del" tabindex="-1" role="dialog" aria-labelledby="Delete Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">Delete
+                                        {{table[0].__title__}}</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid" style="width:40%; margin: 0 auto;">
+                                        <form class="form" method="post" align="left">
+                                            {{ forms['Delete'].csrf_token }}
+                                            {{ forms['Delete'].id.label }}
+                                            {{ forms['Delete'].id(class='form-control', placeholder='#') }}
+                                            <br/>
+                                            <button class="btn btn btn-danger" name="submit" value="{{table[0].__title__}}_del">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% if g.user.is_admin %}
+                    {% set form = forms['Account'] %}
+                    <div class="modal fade" id="Account_new" tabindex="-1" role="dialog" aria-labelledby="New Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">New Account</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid">
+                                        <div class="container" style="width:40%; margin: 0 auto;">
+                                            <form class="form" method="post" align="left">
+                                                {{ form.csrf_token }}
+                                                {{ form.username.label }}
+                                                {{ form.username(class='form-control') }}
+                                                {{ form.password.label }}
+                                                {{ form.password(class='form-control') }}
+                                                {{ form.is_admin.label }}
+                                                {{ form.is_admin }}
+                                                <br/>
+                                                <button class="btn btn btn-primary" name="submit" value="Account_new">
+                                                    Submit
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="Account_edit" tabindex="-1" role="dialog" aria-labelledby="Update Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">Edit Account</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid" style="width:40%; margin: 0 auto;">
+                                        <form class="form" method="post" align="left">
+                                            {{ form.csrf_token }}
+                                            {{ form.id.label }}
+                                            {{ form.id(class='form-control') }}
+                                            {{ form.username.label }}
+                                            {{ form.username(class='form-control') }}
+                                            {{ form.password.label }}
+                                            {{ form.password(class='form-control') }}
+                                            {{ form.is_admin.label }}
+                                            {{ form.is_admin }}
+                                            <br/>
+                                            <button class="btn btn btn-warning" name="submit" value="Account_edit">
+                                                Update
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% set form = forms['Salon'] %}
+                    <div class="modal fade" id="Salon_new" tabindex="-1" role="dialog" aria-labelledby="New Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">New Salon</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid">
+                                        <div class="container" style="width:40%; margin: 0 auto;">
+                                            <form class="form" method="post" align="left">
+                                                {{ form.csrf_token }}
+                                                {{ form.name.label }}
+                                                {{ form.name(class='form-control') }}
+                                                {{ form.address.label }}
+                                                {{ form.address(class='form-control') }}
+                                                {{ form.account_id.label }}
+                                                {{ form.account_id(class='form-control') }}
+                                                <br/>
+                                                <button class="btn btn btn-primary" name="submit" value="Salon_new">
+                                                    Submit
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="Salon_edit" tabindex="-1" role="dialog" aria-labelledby="Update Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">Edit Salon</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid" style="width:40%; margin: 0 auto;">
+                                        <form class="form" method="post" align="left">
+                                            {{ form.csrf_token }}
+                                            {{ form.id.label }}
+                                            {{ form.id(class='form-control') }}
+                                            {{ form.name.label }}
+                                            {{ form.name(class='form-control') }}
+                                            {{ form.address.label }}
+                                            {{ form.address(class='form-control') }}
+                                            {{ form.account_id.label }}
+                                            {{ form.account_id(class='form-control') }}
+                                            <br/>
+                                            <button class="btn btn btn-warning" name="submit" value="Salon_edit">
+                                                Update
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% set form = forms['Customer'] %}
+                    <div class="modal fade" id="Customer_new" tabindex="-1" role="dialog" aria-labelledby="New Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">New Customer</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid">
+                                        <div class="container" style="width:40%; margin: 0 auto;">
+                                            <form class="form" method="post" align="left">
+                                                {{ form.csrf_token }}
+                                                {{ form.first_name.label }}
+                                                {{ form.first_name(class='form-control') }}
+                                                {{ form.last_name.label }}
+                                                {{ form.last_name(class='form-control') }}
+                                                {{ form.email.label }}
+                                                {{ form.email(class='form-control') }}
+                                                {{ form.dob.label }}
+                                                {{ form.dob(class='form-control', placeholder='dd/MM/YYYY') }}
+                                                {{ form.address.label }}
+                                                {{ form.address(class='form-control') }}
+                                                {{ form.address2.label }}
+                                                {{ form.address2(class='form-control', placeholder='Optional') }}
+                                                {{ form.city.label }}
+                                                {{ form.city(class='form-control') }}
+                                                {{ form.postal.label }}
+                                                {{ form.postal(class='form-control') }}
+                                                {{ form.phone.label }}
+                                                {{ form.phone(class='form-control') }}
+                                                {{ form.card_id.label }}
+                                                {{ form.card_id(class='form-control') }}
+                                                <br/>
+                                                <button class="btn btn btn-primary" name="submit" value="Customer_new">
+                                                    Submit
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="Customer_edit" tabindex="-1" role="dialog" aria-labelledby="Update Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">Edit Customer</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid" style="width:40%; margin: 0 auto;">
+                                        <form class="form" method="post" align="left">
+                                            {{ form.csrf_token }}
+                                            {{ form.id.label }}
+                                            {{ form.id(class='form-control') }}
+                                            {{ form.first_name.label }}
+                                            {{ form.first_name(class='form-control') }}
+                                            {{ form.last_name.label }}
+                                            {{ form.last_name(class='form-control') }}
+                                            {{ form.email.label }}
+                                            {{ form.email(class='form-control') }}
+                                            {{ form.dob.label }}
+                                            {{ form.dob(class='form-control', placeholder='dd/MM/YYYY') }}
+                                            {{ form.address.label }}
+                                            {{ form.address(class='form-control') }}
+                                            {{ form.address2.label }}
+                                            {{ form.address2(class='form-control') }}
+                                            {{ form.city.label }}
+                                            {{ form.city(class='form-control') }}
+                                            {{ form.postal.label }}
+                                            {{ form.postal(class='form-control') }}
+                                            {{ form.phone.label }}
+                                            {{ form.phone(class='form-control') }}
+                                            {{ form.card_id.label }}
+                                            {{ form.card_id(class='form-control') }}
+                                            <br/>
+                                            <button class="btn btn btn-warning" name="submit" value="Customer_edit">
+                                                Update
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% set form = forms['Employee'] %}
+                    <div class="modal fade" id="Employee_new" tabindex="-1" role="dialog" aria-labelledby="New Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">New Employee</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid">
+                                        <div class="container" style="width:40%; margin: 0 auto;">
+                                            <form class="form" method="post" align="left">
+                                                {{ form.csrf_token }}
+                                                {{ form.name.label }}
+                                                {{ form.name(class='form-control') }}
+                                                {{ form.wage.label }}
+                                                {{ form.wage(class='form-control', placeholder='%') }}
+                                                {{ form.salon_id.label }}
+                                                {{ form.salon_id(class='form-control') }}
+                                                <br/>
+                                                <button class="btn btn btn-primary" name="submit" value="Employee_new">
+                                                    Submit
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="Employee_edit" tabindex="-1" role="dialog" aria-labelledby="Update Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">Edit Employee</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid" style="width:40%; margin: 0 auto;">
+                                        <form class="form" method="post" align="left">
+                                            {{ form.csrf_token }}
+                                            {{ form.id.label }}
+                                            {{ form.id(class='form-control') }}
+                                            {{ form.name.label }}
+                                            {{ form.name(class='form-control') }}
+                                            {{ form.wage.label }}
+                                            {{ form.wage(class='form-control', placeholder='%') }}
+                                            {{ form.salon_id.label }}
+                                            {{ form.salon_id(class='form-control') }}
+                                            <br/>
+                                            <button class="btn btn btn-warning" name="submit" value="Employee_edit">
+                                                Update
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% set form = forms['Service'] %}
+                    <div class="modal fade" id="Service_new" tabindex="-1" role="dialog" aria-labelledby="New Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">New Service</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid">
+                                        <div class="container" style="width:40%; margin: 0 auto;">
+                                            <form class="form" method="post" align="left">
+                                                {{ form.csrf_token }}
+                                                {{ form.name.label }}
+                                                {{ form.name(class='form-control') }}
+                                                {{ form.price.label }}
+                                                {{ form.price(class='form-control', placeholder='czk') }}
+                                                <br/>
+                                                <button class="btn btn btn-primary" name="submit" value="Service_new">
+                                                    Submit
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="Service_edit" tabindex="-1" role="dialog" aria-labelledby="Update Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">Edit Service</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid" style="width:40%; margin: 0 auto;">
+                                        <form class="form" method="post" align="left">
+                                            {{ form.csrf_token }}
+                                            {{ form.id.label }}
+                                            {{ form.id(class='form-control') }}
+                                            {{ form.name.label }}
+                                            {{ form.name(class='form-control') }}
+                                            {{ form.price.label }}
+                                            {{ form.price(class='form-control', placeholder='czk') }}
+                                            <br/>
+                                            <button class="btn btn btn-warning" name="submit" value="Service_edit">
+                                                Update
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {% set form = forms['Sales'] %}
+                <div class="modal fade" id="Sales_new" tabindex="-1" role="dialog" aria-labelledby="New Entry" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                                <h3 class="modal-title" id="newentryLabel">New Sale</h3>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="container" style="width:40%; margin: 0 auto;">
+                                        <form class="form" method="post" align="left">
+                                            {{ form.csrf_token }}
+                                            {{ form.service_id.label }}
+                                            {{ form.service_id(class='form-control') }}
+                                            {{ form.quantity.label }}
+                                            {{ form.quantity(class='form-control') }}
+                                            {{ form.employee_id.label }}
+                                            {{ form.employee_id(class='form-control') }}
+                                            {{ form.customer_id.label }}
+                                            {{ form.customer_id(class='form-control') }}
+                                            {{ form.discount.label }}
+                                            {{ form.discount(class='form-control', placeholder='%') }}
+                                            <br/>
+                                            <button class="btn btn btn-primary" name="submit" value="Sales_new">
+                                                Submit
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if g.user.is_admin %}
+                    <div class="modal fade" id="Sales_edit" tabindex="-1" role="dialog" aria-labelledby="Update Entry" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h3 class="modal-title" id="newentryLabel">Edit Sale</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid" style="width:40%; margin: 0 auto;">
+                                        <form class="form" method="post" align="left">
+                                            {{ form.csrf_token }}
+                                            {{ form.id.label }}
+                                            {{ form.id(class='form-control') }}
+                                            {{ form.service_id.label }}
+                                            {{ form.service_id(class='form-control') }}
+                                            {{ form.quantity.label }}
+                                            {{ form.quantity(class='form-control') }}
+                                            {{ form.employee_id.label }}
+                                            {{ form.employee_id(class='form-control') }}
+                                            {{ form.customer_id.label }}
+                                            {{ form.customer_id(class='form-control') }}
+                                            {{ form.discount.label }}
+                                            {{ form.discount(class='form-control', placeholder='%') }}
+                                            <br/>
+                                            <button class="btn btn btn-warning" name="submit" value="Sales_edit">
+                                                Update
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% set form = forms['Inventory'] %}
+                <div class="modal fade" id="Inventory_new" tabindex="-1" role="dialog" aria-labelledby="New Entry" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                                <h3 class="modal-title" id="newentryLabel">New Item</h3>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="container" style="width:40%; margin: 0 auto;">
+                                        <form class="form" method="post" align="left">
+                                            {{ form.csrf_token }}
+                                            {{ form.name.label }}
+                                            {{ form.name(class='form-control') }}
+                                            {{ form.quantity.label }}
+                                            {{ form.quantity(class='form-control') }}
+                                            {% if g.user.is_admin %}
+                                                {{ form.salon_id.label }}
+                                                {{ form.salon_id(class='form-control') }}
+                                            {% endif %}
+                                            <br/>
+                                            <button class="btn btn btn-primary" name="submit" value="Inventory_new">
+                                                Submit
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="Inventory_edit" tabindex="-1" role="dialog" aria-labelledby="Update Entry" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                                <h3 class="modal-title" id="newentryLabel">Edit Inventory</h3>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid" style="width:40%; margin: 0 auto;">
+                                    <form class="form" method="post" align="left">
+                                        {{ form.csrf_token }}
+                                        {{ form.id.label }}
+                                        {{ form.id(class='form-control') }}
+                                        {{ form.name.label }}
+                                        {{ form.name(class='form-control') }}
+                                        {{ form.quantity.label }}
+                                        {{ form.quantity(class='form-control') }}
+                                        {% if g.user.is_admin %}
+                                            {{ form.salon_id.label }}
+                                            {{ form.salon_id(class='form-control') }}
+                                        {% endif %}
+                                        <br/>
+                                        <button class="btn btn btn-warning" name="submit" value="Inventory_edit">
+                                            Update
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </body>
+{% endblock %}
