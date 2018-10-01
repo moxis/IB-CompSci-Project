@@ -3,7 +3,7 @@
 
 **DISCLAIMER: This is only for inspirational purposes. Please do not copy this project otherwise you will fail your IB Diplomme due to PLAGIARISM!**
 
-This project is a website written in python using Flask and PostgreSQL database for Nail Salons to help manage their customers, sales, inventory, services, and employee revenue calculations as well as provide useful graphs. It uses bootstrap CSS for design and also contains security features such as IP whitelisting and protection against cross-site forgery attacks. For more details, please refer to the files linked below.
+This project is a website written on python using Flask and PostgreSQL database to help Nail Salons manage their customers, sales, inventory, services offered, and revenue calculations as well as provide insightful graphs. It uses bootstrap CSS for design and also contains security features such as IP whitelisting and protection against cross-site forgery attacks. For more details, please refer to the files linked below.
 
 I received full marks for all the criterions except for Criterion D (Video) where I lost two marks. Overall, this is still a great example of a good Computer Science IA project.
 
