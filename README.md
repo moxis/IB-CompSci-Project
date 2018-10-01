@@ -1,6 +1,5 @@
 # IB Computer Science Project
 ## Introduction
-***
 
 **DISCLAIMER: This is only for inspirational purposes. Please do not copy this project otherwise you will fail your IB Diplomme due to PLAGIARISM!**
 
@@ -9,7 +8,6 @@ This project is a website written in python using Flask and PostgreSQL database 
 I received full marks for all the criterions except for Criterion D (Video) where I lost two marks. Overall, this is still a great example of a good Computer Science IA project.
 
 ## Criterions
-***
 
 Refer to these documents for more details about the project:
 
